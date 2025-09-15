@@ -12,19 +12,19 @@ function PlayState:init()
 	self.pipePairs = {}
 	self.timer = 0
 
+	self.score = 0
+
+	-- init the "last recorded" Y for the gap placement for pipes onwards
 	self.lastY = -PIPE_HT + math.random(80) + 20
 end
-function PlayState:enter() end
+
 function PlayState:update(dt)
 	self.timer = self.timer + dt
 
+	-- spawn a pipe every 2 seconds
 	if self.timer > 2 then
-		-- from here
-		-- if scrolling then
-
-		-- spawning of pipes every 2 seconds
 		-- randomise the pipe positions
-		gapHt = math.random(70, 110)
+		gapHt = math.random(90, 110)
 		local y = math.max(-PIPE_HT + 10, math.min(self.lastY + math.random(-40, 40), VIR_HT - gapHt - PIPE_HT)) -- Make gap_ht a random value
 		lastY = y
 
@@ -33,27 +33,39 @@ function PlayState:update(dt)
 		self.timer = 0 -- reset the timer
 	end
 
-	-- for every pipe in the scene
 	for key, pair in pairs(self.pipePairs) do
+		if not pair.scored then
+			if self.bird.x > pair.x + PIPE_WD then
+				self.score = self.score + 1
+				pair.scored = true
+			end
+		end
+
+		-- for every pipe in the scene, update the pos
 		pair:update(dt)
 	end
 
-	-- doing seperately to not fall into iterator invalidation issue
+	-- remove pipes which have remove as true
 	for key, pipe in pairs(self.pipePairs) do
 		if pipe.remove then
 			table.remove(self.pipePairs, key)
 		end
 	end
+
 	self.bird:update(dt)
 
+	-- check collision and set back to title if collided
 	for key, pair in pairs(self.pipePairs) do
 		for n, pipe in pairs(pair.pipes) do
 			if self.bird:collide(pipe) then
-				gStateMachine:change("title")
+				gStateMachine:change("score", {
+					score = self.score,
+				})
 			end
 		end
 	end
 
+	-- if bird goes beyond ground
 	if self.bird.y > VIR_HT - 15 then
 		gStateMachine:change("title")
 	end

@@ -11,7 +11,11 @@ function PipePair:init(y, gapHt) -- also make gap ht a member value here
 		["lower"] = Pipe("bottom", self.y + PIPE_HT + gapHt),
 	}
 
+	-- if pipe goes beyond left side of the screen we can cleanup
 	self.remove = false
+
+	-- has this pipe been score
+	self.scored = false
 end
 
 function PipePair:update(dt)

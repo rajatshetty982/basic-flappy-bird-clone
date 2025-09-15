@@ -9,6 +9,7 @@ require("StateMachine")
 require("states/BaseState")
 require("states/PlayState")
 require("states/TitleScreenState")
+require("states/ScoreState")
 
 WIN_WD = 1280
 WIN_HT = 720
@@ -55,6 +56,9 @@ function love.load()
 		end,
 		["play"] = function()
 			return PlayState()
+		end,
+		["score"] = function()
+			return ScoreState()
 		end,
 	})
 

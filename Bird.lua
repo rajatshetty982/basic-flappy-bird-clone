@@ -31,7 +31,7 @@ function Bird:collide(pipe)
 	-- with some shrinking of the bounding box to make it a little forgiving for the player. x/y is shifted to the right and width/height is reduced
 	-- So its two inches less on both side
 	if self.x <= pipe.x + pipe.width and (self.x + 2) + (self.width - 4) >= pipe.x then
-		if self.y < pipe.y + pipe.height and (self.y + 2) + (self.height - 4) >= pipe.y then
+		if self.y < pipe.y + pipe.height and (self.y + 3) + (self.height - 6) >= pipe.y then
 			return true
 		end
 	end
