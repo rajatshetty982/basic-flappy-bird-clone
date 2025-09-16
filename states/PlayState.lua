@@ -33,11 +33,13 @@ function PlayState:update(dt)
 		self.timer = 0 -- reset the timer
 	end
 
+	-- scoring system
 	for key, pair in pairs(self.pipePairs) do
 		if not pair.scored then
 			if self.bird.x > pair.x + PIPE_WD then
 				self.score = self.score + 1
 				pair.scored = true
+				sounds["score"]:play()
 			end
 		end
 
@@ -58,6 +60,9 @@ function PlayState:update(dt)
 	for key, pair in pairs(self.pipePairs) do
 		for n, pipe in pairs(pair.pipes) do
 			if self.bird:collide(pipe) then
+				sounds["explosion"]:play()
+				sounds["hurt"]:play()
+
 				gStateMachine:change("score", {
 					score = self.score,
 				})
@@ -67,7 +72,11 @@ function PlayState:update(dt)
 
 	-- if bird goes beyond ground
 	if self.bird.y > VIR_HT - 15 then
-		gStateMachine:change("title")
+		sounds["explosion"]:play()
+		sounds["hurt"]:play()
+		gStateMachine:change("score", {
+			score = self.score,
+		})
 	end
 end
 
@@ -75,6 +84,9 @@ function PlayState:render()
 	for k, pair in pairs(self.pipePairs) do
 		pair:render()
 	end
+
+	love.graphics.setFont(flappyFont)
+	love.graphics.print("Score: " .. tostring(self.score), 8, 8)
 
 	self.bird:render()
 end

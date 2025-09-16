@@ -10,6 +10,7 @@ require("states/BaseState")
 require("states/PlayState")
 require("states/TitleScreenState")
 require("states/ScoreState")
+require("states/CountdownState")
 
 WIN_WD = 1280
 WIN_HT = 720
@@ -17,6 +18,11 @@ WIN_HT = 720
 VIR_WD = 512
 VIR_HT = 288
 
+-- TODO:
+-- love.mousepressed(x,y,button) for jumps
+-- p for pause -> pausestate
+-- if score > limits -> certain medals
+--
 -- All the image stuff start
 local background = love.graphics.newImage("background.png")
 local bgScroll = 0
@@ -44,6 +50,19 @@ function love.load()
 
 	love.graphics.setFont(flappyFont)
 
+	sounds = {
+		["jump"] = love.audio.newSource("jump.wav", "static"),
+		["explosion"] = love.audio.newSource("explosion.wav", "static"),
+		["hurt"] = love.audio.newSource("hurt.wav", "static"),
+		["score"] = love.audio.newSource("score.wav", "static"),
+
+		-- used from https://freesoung.org/people/xsgianni/sounds/388079/
+		["music"] = love.audio.newSource("marios_way.mp3", "static"),
+	}
+
+	sounds["music"]:setLooping(true)
+	sounds["music"]:play()
+
 	push:setupScreen(VIR_WD, VIR_HT, WIN_WD, WIN_HT, {
 		vsync = true,
 		fullscreen = false,
@@ -59,6 +78,9 @@ function love.load()
 		end,
 		["score"] = function()
 			return ScoreState()
+		end,
+		["countdown"] = function()
+			return CountdownState()
 		end,
 	})
 
