@@ -20,7 +20,8 @@ end
 
 function PipePair:update(dt)
 	if self.x > -PIPE_WD then
-		self.x = self.x - PIPE_SCROLL * dt
+		self.x = self.x - gPipeSpeed * dt
+
 		self.pipes["upper"].x = self.x
 		self.pipes["lower"].x = self.x
 	else
@@ -32,4 +33,8 @@ function PipePair:render()
 	for key, pipe in pairs(self.pipes) do
 		pipe:render()
 	end
+end
+
+function PipePair:increaseSpeed(speedToAdd)
+	gPipeSpeed = math.min(gPipeSpeed + speedToAdd, 300) -- 300 will be the max speed
 end

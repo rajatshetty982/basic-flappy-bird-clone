@@ -11,6 +11,13 @@ function Bird:init()
 	self.y = VIR_HT / 2 - (self.height / 2)
 
 	self.dy = 0
+
+	-- NOTE: added a little lag in birds falling action as it was feeling a bit sudden and annoying
+	-- now it kinda feels like the bird is stuck, a bit awkward, maybe a better idea is to render
+	-- the bird even in the title screen
+	self.waiting = true
+	self.waitTimer = 0
+	self.waitUntil = 0.4
 end
 
 function Bird:render()
@@ -18,6 +25,14 @@ function Bird:render()
 end
 
 function Bird:update(dt)
+	if self.waiting then
+		if self.waitTimer < self.waitUntil then
+			self.waitTimer = self.waitTimer + dt
+		else
+			self.waiting = not self.waiting
+		end
+		return
+	end
 	self.dy = self.dy + GRAVITY * dt
 
 	if love.keyboard.wasPressed("space") then

@@ -11,6 +11,7 @@ require("states/PlayState")
 require("states/TitleScreenState")
 require("states/ScoreState")
 require("states/CountdownState")
+require("states/PausedState")
 
 WIN_WD = 1280
 WIN_HT = 720
@@ -82,9 +83,14 @@ function love.load()
 		["countdown"] = function()
 			return CountdownState()
 		end,
+		["pause"] = function()
+			return PausedState()
+		end,
 	})
 
 	gStateMachine:change("title")
+
+	pause = false
 
 	love.keyboard.keysPressed = {}
 end
@@ -105,11 +111,13 @@ function love.keyboard.wasPressed(key)
 end
 
 function love.update(dt)
-	bgScroll = (bgScroll + BG_SCROLL_SPEED * dt) % BG_LOOP_POINT
+	if not pause then
+		bgScroll = (bgScroll + BG_SCROLL_SPEED * dt) % BG_LOOP_POINT
 
-	groundScroll = (groundScroll + GROUND_SCROLL_SPEED * dt) % VIR_WD
+		groundScroll = (groundScroll + GROUND_SCROLL_SPEED * dt) % VIR_WD
 
-	gStateMachine:update(dt)
+		gStateMachine:update(dt)
+	end
 
 	love.keyboard.keysPressed = {} -- reset our inp key table
 end

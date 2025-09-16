@@ -1,11 +1,12 @@
 PlayState = Class({ __includes = BaseState })
 
-PIPE_SCROLL = 60
 PIPE_HT = 288
 PIPE_WD = 70
 
 BIRD_WD = 38
 BIRD_WD = 24
+
+gPipeSpeed = 80
 
 function PlayState:init()
 	self.bird = Bird()
@@ -16,13 +17,15 @@ function PlayState:init()
 
 	-- init the "last recorded" Y for the gap placement for pipes onwards
 	self.lastY = -PIPE_HT + math.random(80) + 20
+
+	self.pipeSpawnTime = 2.0
 end
 
 function PlayState:update(dt)
 	self.timer = self.timer + dt
 
 	-- spawn a pipe every 2 seconds
-	if self.timer > 2 then
+	if self.timer > self.pipeSpawnTime then
 		-- randomise the pipe positions
 		gapHt = math.random(90, 110)
 		local y = math.max(-PIPE_HT + 10, math.min(self.lastY + math.random(-40, 40), VIR_HT - gapHt - PIPE_HT)) -- Make gap_ht a random value
@@ -40,6 +43,19 @@ function PlayState:update(dt)
 				self.score = self.score + 1
 				pair.scored = true
 				sounds["score"]:play()
+
+				-- increasing difficulty difficulty
+				if self.score > 0 and self.score % 1 == 0 then
+					oldspeed = gPipeSpeed
+					print("speed time before: " .. gPipeSpeed)
+					pair:increaseSpeed(5)
+					print("speed time after: " .. gPipeSpeed)
+					print("Spawn time before: " .. self.pipeSpawnTime)
+					if self.pipeSpawnTime > 1 then
+						self.pipeSpawnTime = self.pipeSpawnTime - (0.06 * (oldspeed / gPipeSpeed))
+						print("Spawn time after: " .. self.pipeSpawnTime)
+					end
+				end
 			end
 		end
 
@@ -78,6 +94,13 @@ function PlayState:update(dt)
 			score = self.score,
 		})
 	end
+
+	-- NOTE: For the pause state.
+	if love.keyboard.wasPressed("p") then
+		gStateMachine:change("pause", {
+			playState = self,
+		})
+	end
 end
 
 function PlayState:render()
@@ -89,4 +112,20 @@ function PlayState:render()
 	love.graphics.print("Score: " .. tostring(self.score), 8, 8)
 
 	self.bird:render()
+end
+
+function PlayState:enter(params)
+	if params and params.playState then
+		local old = params.playState
+
+		self.bird = old.bird
+		self.pipePairs = old.pipePairs
+		self.timer = old.timer
+
+		self.score = old.score
+
+		self.lastY = old.lastY
+	else
+		self:init()
+	end
 end
